@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+	<head>
+
+		<meta charset="UTF-8">
+	 	<title>Train Scheduler</title>
+	 	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Favicon for the webpage -->
+	 	<link rel="icon" href="assets/images/favicon.png" type="image/png" sizes="16x16">
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+		<!-- Popper JS -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+		<!-- Font Awesome icon library -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+		<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+	</head>
+
+	<body class="text-center">
+
+		<div class="jumbotron jumbotron-fluid">
+		  <div class="container">
+		    <h1>Train Scheduler</h1>      
+		    <p>Listing of Train Info & Arrival Times</p>
+		  </div>
+		</div>
+
+		<div class="container">
+			
+			<div class="row">
+				<div class="col-md-12">
+					<h2>Current Train Schedule</h2>
+					<div class="row">
+						<div class="col-md-12">
+							<table class="table table-striped table-bordered table-hover">
+						    	<thead>
+						      		<tr>
+								        <th>Train Name</th>
+								        <th>Destination</th>
+								        <th>Frequency (min)</th>
+								        <th>Next Arrival</th>
+								        <th>Minutes Away</th>
+						      		</tr>
+						    	</thead>
+							    <tbody id="train-schedule-table-body">
+							    	<tr>
+							        	<td>Max</td>
+							        	<td>Ninja</td>
+							        	<td>01/01/89</td>
+							        	<td>353</td>
+							        	<td>100</td>
+							      	</tr>
+							      	<tr>
+							        	<td>Jason</td>
+							        	<td>Someone</td>
+							        	<td>01/01/90</td>
+							        	<td>341</td>
+							        	<td>1000</td>
+							      	</tr>
+							    </tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6 offset-md-3 offset-md-right-3 border">
+					<h2>Add Train</h2>
+					  	<form>
+						    <div class="form-group">
+						      <label for="train-name">Train Name</label>
+						      <br>
+						      <input type="text" class="form-control" id="train-name" placeholder="Polar Express" name="train-name">
+						    </div>
+						    <div class="form-group">
+						      <label for="destination">Destination</label>
+						      <br>
+						      <input type="text" class="form-control" id="destination" placeholder="North Pole" name="destination">
+						    </div>						    
+						    <div class="form-group">
+						      <label for="first-train-time">First Train Time (HH:mm - military time)</label>
+						      <br>
+						      <input type="text" class="form-control" id="first-train-time" placeholder="23:15" name="first-train-time">
+						    </div>
+						    <div class="form-group">
+						      <label for="frequency">Frequency (min)</label>
+						      <br>
+						      <input type="text" class="form-control" id="frequency" placeholder="25" name="frequency">
+						    </div>	
+						    <button id="submit-train-info" type="submit" class="btn btn-primary">Submit</button>
+					  	</form>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Load the associated JavaScript files -->
+		<!-- Firebase database -->
+		<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase.js"></script>
+		<!-- Moment.js -->
+		<script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+
+		<!-- Load the associated JavaScript files -->
+		<script type="text/javascript" src="assets/javascript/app.js"></script>
+
+	</body>
+
+</html>

@@ -1,0 +1,30 @@
+/*The commented out block below was used for debugging the layout's paddings and margins*/
+/** {
+	border-width: 1px;
+	border-style: solid;
+	border-color: red;
+}*/
+
+body {
+	/*  Background fallback in case of IE8 & down, or in case video doesn't load, such as with slower connections  */
+	background: url(../images/background.jpg) center center no-repeat fixed #464646;
+
+    /*This is what makes the background image rescale based on the container's size
+    Use vendor prefixes to support different browsers*/
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+    color: #ffffff;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+.jumbotron {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.container {
+    padding-bottom: 24px;
+}
