@@ -1,80 +1,128 @@
-// Initialize Firebase
-var config = {
-    apiKey: "AIzaSyDQXloNcsYmXy_-fJuNLKIXznPp-UzORVM",
-    authDomain: "testproject-e35d0.firebaseapp.com",
-    databaseURL: "https://testproject-e35d0.firebaseio.com",
-    projectId: "testproject-e35d0",
-    storageBucket: "testproject-e35d0.appspot.com",
-    messagingSenderId: "176664412317"
-  };
 
-firebase.initializeApp(config);
-// Create a variable to reference the database.
-var database = firebase.database();
+var database = null;
+var trainInfoArray = [];
 
 $(document).ready(function() {
-	addEmployeeFormSubmissionEventListener();
+	// a variable to reference the database.
+	database = initializeFirebase();
+	getTrainInfoFromDatabase();
+	addTrainFormSubmissionEventListener();
+	displayTrainInfoTable();
 });
 
-function addEmployeeFormSubmissionEventListener() {
-	$("#submit-employee-info").on("click", function(event) {
-    	event.preventDefault();
-    	// console.log("inside addEmployeeFormSubmissionEventListener()");
-    	var employee = {};
-    	employee.employeeName = $("#name").val().trim();
-    	$("#name").val("");
-    	employee.role = $("#role").val().trim();
-    	$("#role").val("");
-    	employee.startDate = $("#start-date").val().trim();
-    	$("#start-date").val("");
-    	employee.monthlyRate = parseInt($("#monthly-rate").val().trim());
-    	$("#monthly-rate").val("");
-    	displayEmployeeInfo(employee);
+function initializeFirebase() {
+	var config = {
+		apiKey: "AIzaSyAGPLldtbicJ5SYT51F5EsLEOUIM3urSQQ",
+		authDomain: "train-scheduler-4e814.firebaseapp.com",
+		databaseURL: "https://train-scheduler-4e814.firebaseio.com",
+		projectId: "train-scheduler-4e814",
+		storageBucket: "train-scheduler-4e814.appspot.com",
+		messagingSenderId: "931838532405"
+	};
+	firebase.initializeApp(config);
+	return firebase.database();
+}
+
+function addTrainFormSubmissionEventListener() {
+	$("#submit-train-info").on("click", function(event) {
+		event.preventDefault();
+
+		var train = {};
+		train.trainName = $("#train-name").val().trim();
+		train.destination = $("#destination").val().trim();
+		train.firstTrainTime = $("#first-train-time").val().trim();
+		train.frequency = parseInt($("#frequency").val().trim());
+
+		clearTrainForm();
+		addTrainInfoToDatabase(train);
+		// displayTrainInfo(train);
 	});
 }
 
-function displayEmployeeInfo(employee) {
-	
-	addEmployeeInfoToDatabase(employee);
-
-	var tableBody = $("#employee-table-body");
-	var tableRow = $("<tr>");
-	
-	var employeeNameTableCell = $("<td>");
-	employeeNameTableCell.text(employee.employeeName)
-	tableRow.append(employeeNameTableCell);
-	
-	var roleTableCell = $("<td>");
-	roleTableCell.text(employee.role)
-	tableRow.append(roleTableCell);
-
-	var startDateTableCell = $("<td>");
-	startDateTableCell.text(employee.startDate)
-	tableRow.append(startDateTableCell);
-
-	var monthsWorkedTableCell = $("<td>");
-	monthsWorkedTableCell.text(moment().diff(moment(employee.startDate, "MM/DD/YYYY"), "months"));
-	tableRow.append(monthsWorkedTableCell);
-
-	var monthlyRateTableCell = $("<td>");
-	monthlyRateTableCell.text(employee.monthlyRate)
-	tableRow.append(monthlyRateTableCell);
-
-	var totalBilledTableCell = $("<td>");
-	totalBilledTableCell.text(parseInt(moment().diff(moment(employee.startDate, "MM/DD/YYYY"), "months")) * employee.monthlyRate);
-	tableRow.append(totalBilledTableCell);
-
-	tableBody.append(tableRow);
+function clearTrainForm() {
+	$("#train-name").val("");
+	$("#destination").val("");
+	$("#first-train-time").val("");
+	$("#frequency").val("");
 }
 
-function addEmployeeInfoToDatabase(employee) {
-    database.ref().push({
-        name: employee.employeeName,
-        role: employee.role,
-        startDate: employee.startDate,
-        monthlyRate: employee.monthlyRate,
-        dateAdded: firebase.database.ServerValue.TIMESTAMP
-    });
+function displayTrainInfoTable() {
+	var tableBody = $("#train-table-body");
+	tableBody.empty();
+	trainInfoArray.forEach(function(train){
+		tableBody.append(generateTrainHtml(train));
+	});
+}
+
+function generateTrainHtml(train) {
+	var tableRow = $("<tr>");
+	
+	var trainNameTableCell = $("<td>");
+	trainNameTableCell.text(train.trainName)
+	tableRow.append(trainNameTableCell);
+	
+	var destinationTableCell = $("<td>");
+	destinationTableCell.text(train.destination)
+	tableRow.append(destinationTableCell);
+
+	var frequencyTableCell = $("<td>");
+	frequencyTableCell.text(train.frequency)
+	tableRow.append(frequencyTableCell);
+
+	var nextTrainMinutesAway = getNextTrainMinutesAway(train.firstTrainTime, train.frequency);
+	var nextArrivalTableCell = $("<td>");
+	nextArrivalTableCell.text(getNextTrainArrivalTime(nextTrainMinutesAway));
+	// monthsWorkedTableCell.text(moment().diff(moment(employee.startDate, "MM/DD/YYYY"), "months"));
+	tableRow.append(nextArrivalTableCell);
+
+	var minutesAwayTableCell = $("<td>");
+	minutesAwayTableCell.text(nextTrainMinutesAway);
+	tableRow.append(minutesAwayTableCell);
+
+	return tableRow;
+}
+
+function getNextTrainArrivalTime(nextTrainMinutesAway) {
+	var nextTrainArrivalTime = moment().add(parseInt(nextTrainMinutesAway), 'minutes').format('hh:mm A');
+	return nextTrainArrivalTime;
+}
+
+function getNextTrainMinutesAway(firstTrainTime, frequency) {
+	var firstTrainInMinutes = moment(firstTrainTime, "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
+	var currentTimeInMinutes = moment(moment().format("HH:mm"), "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
+	var nextTrainMinutesAway = (parseInt(frequency) - ( (parseInt(currentTimeInMinutes) - parseInt(firstTrainTime)) % parseInt(frequency) ));
+	return nextTrainMinutesAway;
+}
+
+function addTrainInfoToDatabase(train) {
+	trainInfoArray.push(train);
+	database.ref().push({
+		trainInfoArray: trainInfoArray
+	});
+}
+
+function getTrainInfoFromDatabase() {
+	database.ref().on("value", function(snapshot) {
+		// We are now inside our .on function...
+
+		// Console.log the "snapshot" value (a point-in-time representation of the database)
+		// console.log(snapshot.val());
+		console.log(snapshot.val()[Object.keys(snapshot.val())[0]].trainInfoArray);
+		
+		// This "snapshot" allows the page to get the most current values in firebase.
+
+		// Change the value of our trainInfoArray to match the value in the database
+		if (snapshot.val()) {
+			trainInfoArray = snapshot.val()[Object.keys(snapshot.val())[0]].trainInfoArray;
+		}
+
+		// Change the HTML using jQuery to reflect the updated train schedule table
+		displayTrainInfoTable();
+
+	// If any errors are experienced, log them to console.
+	}, function(errorObject) {
+	  console.log("The read failed: " + errorObject);
+	});
 }
 
 
