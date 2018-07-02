@@ -28,3 +28,7 @@ body {
 .container {
     padding-bottom: 24px;
 }
+
+#train-table-body {
+    font-weight: bold;
+}

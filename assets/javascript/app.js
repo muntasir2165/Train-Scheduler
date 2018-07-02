@@ -90,14 +90,16 @@ function getNextTrainArrivalTime(nextTrainMinutesAway) {
 function getNextTrainMinutesAway(firstTrainTime, frequency) {
 	var firstTrainInMinutes = moment(firstTrainTime, "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
 	var currentTimeInMinutes = moment(moment().format("HH:mm"), "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
-	var nextTrainMinutesAway = (parseInt(frequency) - ( (parseInt(currentTimeInMinutes) - parseInt(firstTrainTime)) % parseInt(frequency) ));
+	var nextTrainMinutesAway = ( currentTimeInMinutes - firstTrainInMinutes) % frequency;
+	if (nextTrainMinutesAway > 0 && nextTrainMinutesAway < frequency) {
+		nextTrainMinutesAway = frequency - nextTrainMinutesAway;
+	}
 	return nextTrainMinutesAway;
 }
 
 function addTrainInfoToDatabase(train) {
-	trainInfoArray.push(train);
 	database.ref().push({
-		trainInfoArray: trainInfoArray
+		train: train
 	});
 }
 
@@ -106,16 +108,20 @@ function getTrainInfoFromDatabase() {
 		// We are now inside our .on function...
 
 		// Console.log the "snapshot" value (a point-in-time representation of the database)
-		// console.log(snapshot.val());
-		console.log(snapshot.val()[Object.keys(snapshot.val())[0]].trainInfoArray);
-		
+		console.log("snapshot.val(): " + snapshot.val());
+
 		// This "snapshot" allows the page to get the most current values in firebase.
 
-		// Change the value of our trainInfoArray to match the value in the database
+		// Update the value of our trainInfoArray to match the info in the database
 		if (snapshot.val()) {
-			trainInfoArray = snapshot.val()[Object.keys(snapshot.val())[0]].trainInfoArray;
+			trainInfoArray = [];
+			Object.keys(snapshot.val()).forEach(function(key){
+				// console.log(key);
+				trainInfoArray.push(snapshot.val()[key].train);
+			});
 		}
 
+		console.log("trainInfoArray: " + trainInfoArray);
 		// Change the HTML using jQuery to reflect the updated train schedule table
 		displayTrainInfoTable();
 
