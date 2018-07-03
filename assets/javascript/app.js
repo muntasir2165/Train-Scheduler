@@ -8,6 +8,8 @@ $(document).ready(function() {
 	getTrainInfoFromDatabase();
 	addTrainFormSubmissionEventListener();
 	displayTrainInfoTable();
+	// showFormInputFeedback(true);
+	clearTrainForm();
 });
 
 function initializeFirebase() {
@@ -32,11 +34,70 @@ function addTrainFormSubmissionEventListener() {
 		train.destination = $("#destination").val().trim();
 		train.firstTrainTime = $("#first-train-time").val().trim();
 		train.frequency = parseInt($("#frequency").val().trim());
+		
+		var isTrainNameUnique = true;
+		var isFirstTrainTimeValid = true;
+		var isFrequencyValid = true;
 
-		clearTrainForm();
-		addTrainInfoToDatabase(train);
-		// displayTrainInfo(train);
+		if (!uniqueTrainName(train.trainName) || !validFirstTrainTime(train.firstTrainTime) || !validFrequency(train.frequency)) {
+			if (!uniqueTrainName(train.trainName)) {
+				isTrainNameUnique = false;
+			}
+			if (!validFirstTrainTime(train.firstTrainTime)) {
+				isFirstTrainTimeValid = false;
+			}		
+			if (!validFrequency(train.frequency)) {
+				isFrequencyValid = false;
+			}
+			showFormInputFeedback(false, isTrainNameUnique, isFirstTrainTimeValid, isFrequencyValid);
+		} else {	
+			clearTrainForm();
+			addTrainInfoToDatabase(train);
+		}
 	});
+}
+
+function uniqueTrainName(trainName) {
+	return true;
+}
+
+function validFirstTrainTime(firstTrainTime) {
+	return moment(firstTrainTime, 'HH:mm', true).isValid();
+}
+
+function validFrequency(frequency) {
+	return true;
+}
+
+function showFormInputFeedback(hideFormInputFeedback, isTrainNameUnique, isFirstTrainTimeValid, isFrequencyValid) {
+	var trainNameFeedbackContainer = $("#train-name-feedback");
+	var firstTrainTimeFeedbackContainer = $("#first-train-time-feedback");
+	var frequencyFeedbackContainer = $("#frequency-feedback");
+
+	if (hideFormInputFeedback) {
+		trainNameFeedbackContainer.text("");
+		firstTrainTimeFeedbackContainer.text("");
+		frequencyFeedbackContainer.text("");
+		return;
+	}
+
+	if (!isTrainNameUnique) {
+		trainNameFeedbackContainer.text("Please input a unique train name that is not already listed in the table above");
+	} else {
+		trainNameFeedbackContainer.text("");
+	}
+
+	if (!isFirstTrainTimeValid) {
+		firstTrainTimeFeedbackContainer.text("Please enter time in the format HH:mm");
+	} else {
+		firstTrainTimeFeedbackContainer.text("");
+	}
+
+	if (!isFrequencyValid) {
+		frequencyFeedbackContainer.text("Please only input numbers");
+	} else {
+		frequencyFeedbackContainer.text("");
+	}
 }
 
 function clearTrainForm() {
@@ -44,6 +105,7 @@ function clearTrainForm() {
 	$("#destination").val("");
 	$("#first-train-time").val("");
 	$("#frequency").val("");
+	showFormInputFeedback(true);
 }
 
 function displayTrainInfoTable() {

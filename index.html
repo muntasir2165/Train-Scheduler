@@ -33,8 +33,18 @@
 
 		<div class="jumbotron jumbotron-fluid">
 		  <div class="container">
-		    <h1>Train Scheduler</h1>      
-		    <h2>Listing of Train Info & Arrival Times</h2>
+		  	<div class="row">
+		  		<div class="col-md-2">
+		  			<img src="assets/images/train.gif" id="left-train-logo">
+		  		</div>
+		  		<div class="col-md-8">
+		    		<h1>Train Scheduler</h1>      
+		    		<h2>Listing of Train Info & Arrival Times</h2>
+		    	</div>
+		  		<div class="col-md-2">
+		  			<img src="assets/images/train.gif" id="right-train-logo">
+		  		</div>
+			</div>
 		  </div>
 		</div>
 
@@ -78,13 +88,14 @@
 			</div>
 
 			<div class="row">
-				<div class="col-md-6 offset-md-3 offset-md-right-3 border rounded p-3">
+				<div class="col-md-8 offset-md-2 offset-md-right-2 border rounded p-3">
 					<h2>Add Train</h2>
 					  	<form>
 						    <div class="form-group">
 						      <label for="train-name">Train Name</label>
 						      <br>
 						      <input type="text" class="form-control" id="train-name" placeholder="Polar Express" name="train-name">
+						      <div id="train-name-feedback" class="feedback"></div>
 						    </div>
 						    <div class="form-group">
 						      <label for="destination">Destination</label>
@@ -95,11 +106,13 @@
 						      <label for="first-train-time">First Train Time (HH:mm - military time)</label>
 						      <br>
 						      <input type="text" class="form-control" id="first-train-time" placeholder="23:15" name="first-train-time">
+						      <div id="first-train-time-feedback" class="feedback"></div>
 						    </div>
 						    <div class="form-group">
 						      <label for="frequency">Frequency (min)</label>
 						      <br>
 						      <input type="text" class="form-control" id="frequency" placeholder="25" name="frequency">
+						      <div id="frequency-feedback" class="feedback"></div>
 						    </div>	
 						    <button id="submit-train-info" type="submit" class="btn btn-primary">Submit</button>
 					  	</form>

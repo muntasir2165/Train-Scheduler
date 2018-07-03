@@ -32,3 +32,17 @@ body {
 #train-table-body {
     font-weight: bold;
 }
+
+.feedback {
+    text-decoration: underline;
+    text-decoration-color: red;
+}
+
+#left-train-logo, #right-train-logo {
+    border-radius: 35%;
+}
+
+#right-train-logo {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
