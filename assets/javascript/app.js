@@ -11,7 +11,7 @@ $(document).ready(function() {
 	// showFormInputFeedback(true);
 	clearTrainForm();
 	deleteTrainInfoTrashIconClickListener();
-	seedData();
+	// seedData();
 	// database.ref().child("-LGTPQKcD-7zLyZadG7s").remove();
 });
 
