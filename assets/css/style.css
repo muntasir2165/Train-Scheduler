@@ -20,13 +20,22 @@ body {
     font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
+.container {
+    padding-bottom: 24px;
+}
+
 .jumbotron {
     background-color: #000000;
     color: #ffffff;
 }
 
-.container {
-    padding-bottom: 24px;
+#left-train-logo, #right-train-logo {
+    border-radius: 35%;
+}
+
+#right-train-logo {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
 }
 
 #train-table-body {
@@ -37,16 +46,11 @@ body {
     background: #000000;
 }
 
+.fa-trash {
+     cursor: pointer;
+}
+
 .feedback {
     text-decoration: underline;
     text-decoration-color: red;
-}
-
-#left-train-logo, #right-train-logo {
-    border-radius: 35%;
-}
-
-#right-train-logo {
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1);
 }

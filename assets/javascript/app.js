@@ -10,6 +10,9 @@ $(document).ready(function() {
 	displayTrainInfoTable();
 	// showFormInputFeedback(true);
 	clearTrainForm();
+	deleteTrainInfoTrashIconClickListener();
+	// seedData();
+	// database.ref().child("-LGTPQKcD-7zLyZadG7s").remove();
 });
 
 function initializeFirebase() {
@@ -23,6 +26,36 @@ function initializeFirebase() {
 	};
 	firebase.initializeApp(config);
 	return firebase.database();
+}
+
+function deleteTrainInfoTrashIconClickListener() {
+    $(document).on("click", "i.fa-trash", function() {
+    	var trainName = $(this).attr("data-name");
+	    // console.log(trainName);
+	    var trainKey = null;
+    
+		database.ref().on("value", function(snapshot) {
+			// console.log("snapshot inside deleteTrainInfoTrashIconClickListener: " + snapshot.val());
+			if (snapshot.val()) {
+				Object.keys(snapshot.val()).forEach(function(key){
+					// console.log("snapshot.val()[key].train: " + snapshot.val()[key].train);
+					if (trainName === snapshot.val()[key].train.trainName) {
+						trainKey = key;
+						// console.log("key: " + key);
+						console.log("Deleting train info: " + JSON.stringify(snapshot.val()[key].train));
+					}
+				});
+			}
+			database.ref().child(trainKey).remove();
+			// console.log("trainInfoArray: " + trainInfoArray);
+			// get updated info from the database and then change the HTML using jQuery to reflect the updated train schedule table
+			// getTrainInfoFromDatabase();
+
+		// If any errors are experienced, log them to console.
+		}, function(errorObject) {
+		  console.log("The read failed: " + errorObject);
+		});
+	});
 }
 
 function addTrainFormSubmissionEventListener() {
@@ -147,6 +180,10 @@ function generateTrainHtml(train) {
 	minutesAwayTableCell.text(nextTrainMinutesAway);
 	tableRow.append(minutesAwayTableCell);
 
+	var deleteTrainInfoTableCell = $("<td>");
+	deleteTrainInfoTableCell.html("<i data-name=\""+ train.trainName + "\" class=\"fa fa-trash\" aria-hidden=\"true\"></i>");
+	tableRow.append(deleteTrainInfoTableCell);
+
 	return tableRow;
 }
 
@@ -195,11 +232,21 @@ function getTrainInfoFromDatabase() {
 		// console.log("trainInfoArray: " + trainInfoArray);
 		// Change the HTML using jQuery to reflect the updated train schedule table
 		displayTrainInfoTable();
+		// console.log("trainInfoArray length: " + trainInfoArray.length);
+		// trainInfoArray.forEach(function(train){
+		// 	console.log(train);
+		// });
 
 	// If any errors are experienced, log them to console.
 	}, function(errorObject) {
 	  console.log("The read failed: " + errorObject);
 	});
+}
+
+function seedData() {
+	addTrainInfoToDatabase({"destination":"North Pole","firstTrainTime":"23:30","frequency":"30","trainName":"Polar Express"});
+	addTrainInfoToDatabase({"destination":"Hogwarts School of Wizardry","firstTrainTime":"04:15","frequency":"60","trainName":"Hogwarts Express"});
+	addTrainInfoToDatabase({"destination":"Wakanda City Centre","firstTrainTime":"15:00","frequency":"15","trainName":"Wakanda Shuttle"});
 }
 
 
