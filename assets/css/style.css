@@ -33,6 +33,10 @@ body {
     font-weight: bold;
 }
 
+.table-hover tbody tr:hover td {
+    background: #000000;
+}
+
 .feedback {
     text-decoration: underline;
     text-decoration-color: red;

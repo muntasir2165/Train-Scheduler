@@ -33,7 +33,7 @@ function addTrainFormSubmissionEventListener() {
 		train.trainName = $("#train-name").val().trim();
 		train.destination = $("#destination").val().trim();
 		train.firstTrainTime = $("#first-train-time").val().trim();
-		train.frequency = parseInt($("#frequency").val().trim());
+		train.frequency = $("#frequency").val().trim();
 		
 		var isTrainNameUnique = true;
 		var isFirstTrainTimeValid = true;
@@ -58,6 +58,11 @@ function addTrainFormSubmissionEventListener() {
 }
 
 function uniqueTrainName(trainName) {
+	for (var i=0; i< trainInfoArray.length; i++) {
+		if (trainName === trainInfoArray[i].trainName) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -66,7 +71,8 @@ function validFirstTrainTime(firstTrainTime) {
 }
 
 function validFrequency(frequency) {
-	return true;
+	var pattern = /^\d+$/;
+	return pattern.test(frequency);
 }
 
 function showFormInputFeedback(hideFormInputFeedback, isTrainNameUnique, isFirstTrainTimeValid, isFrequencyValid) {
@@ -88,7 +94,7 @@ function showFormInputFeedback(hideFormInputFeedback, isTrainNameUnique, isFirst
 	}
 
 	if (!isFirstTrainTimeValid) {
-		firstTrainTimeFeedbackContainer.text("Please enter time in the format HH:mm");
+		firstTrainTimeFeedbackContainer.text("Please enter a valid military time in the exact format HH:mm");
 	} else {
 		firstTrainTimeFeedbackContainer.text("");
 	}
@@ -152,9 +158,12 @@ function getNextTrainArrivalTime(nextTrainMinutesAway) {
 function getNextTrainMinutesAway(firstTrainTime, frequency) {
 	var firstTrainInMinutes = moment(firstTrainTime, "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
 	var currentTimeInMinutes = moment(moment().format("HH:mm"), "HH:mm").diff(moment("00:00", "HH:mm"), "minutes");
-	var nextTrainMinutesAway = ( currentTimeInMinutes - firstTrainInMinutes) % frequency;
-	if (nextTrainMinutesAway > 0 && nextTrainMinutesAway < frequency) {
-		nextTrainMinutesAway = frequency - nextTrainMinutesAway;
+	var nextTrainMinutesAway = ( currentTimeInMinutes - firstTrainInMinutes) % parseInt(frequency);
+	// console.log(firstTrainInMinutes, currentTimeInMinutes, nextTrainMinutesAway);
+	if (nextTrainMinutesAway > 0 && nextTrainMinutesAway < parseInt(frequency)) {
+		nextTrainMinutesAway = parseInt(frequency) - nextTrainMinutesAway;
+	} else if (nextTrainMinutesAway < 0) {
+		nextTrainMinutesAway = Math.abs(nextTrainMinutesAway);
 	}
 	return nextTrainMinutesAway;
 }
@@ -170,7 +179,7 @@ function getTrainInfoFromDatabase() {
 		// We are now inside our .on function...
 
 		// Console.log the "snapshot" value (a point-in-time representation of the database)
-		console.log("snapshot.val(): " + snapshot.val());
+		// console.log("snapshot.val(): " + snapshot.val());
 
 		// This "snapshot" allows the page to get the most current values in firebase.
 
@@ -178,12 +187,12 @@ function getTrainInfoFromDatabase() {
 		if (snapshot.val()) {
 			trainInfoArray = [];
 			Object.keys(snapshot.val()).forEach(function(key){
-				// console.log(key);
+				// console.log(snapshot.val()[key].train);
 				trainInfoArray.push(snapshot.val()[key].train);
 			});
 		}
 
-		console.log("trainInfoArray: " + trainInfoArray);
+		// console.log("trainInfoArray: " + trainInfoArray);
 		// Change the HTML using jQuery to reflect the updated train schedule table
 		displayTrainInfoTable();
 
