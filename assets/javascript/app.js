@@ -11,9 +11,17 @@ $(document).ready(function() {
 	// showFormInputFeedback(true);
 	clearTrainForm();
 	deleteTrainInfoTrashIconClickListener();
+	updateTableInfoEveryMinute();
 	// seedData();
 	// database.ref().child("-LGTPQKcD-7zLyZadG7s").remove();
 });
+
+function updateTableInfoEveryMinute() {
+	setInterval(function () {
+		console.log("updating train into table at: " + moment().format("HH:mm:ss A"));
+    	displayTrainInfoTable();
+	}, 60000);
+}
 
 function initializeFirebase() {
 	var config = {
