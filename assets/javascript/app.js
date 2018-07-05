@@ -190,7 +190,7 @@ function generateTrainHtml(train) {
 	tableRow.append(minutesAwayTableCell);
 
 	var deleteTrainInfoTableCell = $("<td>");
-	deleteTrainInfoTableCell.html("<i data-key=\""+ train.databaseKey + "\" class=\"fa fa-trash\" aria-hidden=\"true\"></i>");
+	deleteTrainInfoTableCell.html("<i data-key=\""+ train.databaseKey + "\" class=\"fa fa-trash fa-2x\" aria-hidden=\"true\"></i>");
 	tableRow.append(deleteTrainInfoTableCell);
 
 	return tableRow;
