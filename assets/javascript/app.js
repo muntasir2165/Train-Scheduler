@@ -8,7 +8,6 @@ $(document).ready(function() {
 	getTrainInfoFromDatabase();
 	addTrainFormSubmissionEventListener();
 	displayTrainInfoTable();
-	// showFormInputFeedback(true);
 	clearTrainForm();
 	deleteTrainInfoTrashIconClickListener();
 	updateTableInfoEveryMinute();
@@ -53,13 +52,17 @@ function addTrainFormSubmissionEventListener() {
 		train.firstTrainTime = $("#first-train-time").val().trim();
 		train.frequency = $("#frequency").val().trim();
 		
-		var isTrainNameUnique = true;
+		var isTrainNameNonEmptyAndUnique = true;
+		var isDestinationNonEmpty = true;
 		var isFirstTrainTimeValid = true;
 		var isFrequencyValid = true;
 
-		if (!uniqueTrainName(train.trainName) || !validFirstTrainTime(train.firstTrainTime) || !validFrequency(train.frequency)) {
-			if (!uniqueTrainName(train.trainName)) {
-				isTrainNameUnique = false;
+		if (!uniqueNonEmptyTrainName(train.trainName) || !validNonEmptyDestination(train.destination) || !validFirstTrainTime(train.firstTrainTime) || !validFrequency(train.frequency)) {
+			if (!uniqueNonEmptyTrainName(train.trainName)) {
+				isTrainNameNonEmptyAndUnique = false;
+			}
+			if (!validNonEmptyDestination(train.destination)) {
+				isDestinationNonEmpty = false;
 			}
 			if (!validFirstTrainTime(train.firstTrainTime)) {
 				isFirstTrainTimeValid = false;
@@ -67,7 +70,7 @@ function addTrainFormSubmissionEventListener() {
 			if (!validFrequency(train.frequency)) {
 				isFrequencyValid = false;
 			}
-			showFormInputFeedback(false, isTrainNameUnique, isFirstTrainTimeValid, isFrequencyValid);
+			showFormInputFeedback(false, isTrainNameNonEmptyAndUnique, isDestinationNonEmpty, isFirstTrainTimeValid, isFrequencyValid);
 		} else {	
 			clearTrainForm();
 			addTrainInfoToDatabase(train);
@@ -75,13 +78,20 @@ function addTrainFormSubmissionEventListener() {
 	});
 }
 
-function uniqueTrainName(trainName) {
+function uniqueNonEmptyTrainName(trainName) {
+	if (!trainName) {
+		return false;
+	}
 	for (var i=0; i< trainInfoArray.length; i++) {
 		if (trainName === trainInfoArray[i].trainName) {
 			return false;
 		}
 	}
 	return true;
+}
+
+function validNonEmptyDestination(destination) {
+	return !(destination === "");
 }
 
 function validFirstTrainTime(firstTrainTime) {
@@ -93,22 +103,30 @@ function validFrequency(frequency) {
 	return pattern.test(frequency);
 }
 
-function showFormInputFeedback(hideFormInputFeedback, isTrainNameUnique, isFirstTrainTimeValid, isFrequencyValid) {
+function showFormInputFeedback(hideFormInputFeedback, isTrainNameNonEmptyAndUnique, isDestinationNonEmpty, isFirstTrainTimeValid, isFrequencyValid) {
 	var trainNameFeedbackContainer = $("#train-name-feedback");
+	var trainDestinationFeedbackContainer = $("#train-destination-feedback");
 	var firstTrainTimeFeedbackContainer = $("#first-train-time-feedback");
 	var frequencyFeedbackContainer = $("#frequency-feedback");
 
 	if (hideFormInputFeedback) {
 		trainNameFeedbackContainer.text("");
+		trainDestinationFeedbackContainer.text("");
 		firstTrainTimeFeedbackContainer.text("");
 		frequencyFeedbackContainer.text("");
 		return;
 	}
 
-	if (!isTrainNameUnique) {
-		trainNameFeedbackContainer.text("Please input a unique train name that is not already listed in the table above");
+	if (!isTrainNameNonEmptyAndUnique) {
+		trainNameFeedbackContainer.text("Please input a non-empty unique train name that is not already listed in the table above");
 	} else {
 		trainNameFeedbackContainer.text("");
+	}
+
+	if (!isDestinationNonEmpty) {
+		trainDestinationFeedbackContainer.text("Please input a non-empty train destination");
+	} else {
+		trainDestinationFeedbackContainer.text("");
 	}
 
 	if (!isFirstTrainTimeValid) {
@@ -162,7 +180,13 @@ function generateTrainHtml(train) {
 	tableRow.append(nextArrivalTableCell);
 
 	var minutesAwayTableCell = $("<td>");
-	minutesAwayTableCell.text(nextTrainMinutesAway);
+	if (parseInt(nextTrainMinutesAway) === 0) {
+		minutesAwayTableCell.addClass("train-now");
+		minutesAwayTableCell.text("now!");
+	}else {
+		minutesAwayTableCell.removeClass("train-now");
+		minutesAwayTableCell.text(nextTrainMinutesAway);
+	}
 	tableRow.append(minutesAwayTableCell);
 
 	var deleteTrainInfoTableCell = $("<td>");
@@ -206,8 +230,8 @@ function getTrainInfoFromDatabase() {
 		// This "snapshot" allows the page to get the most current values in firebase.
 
 		// Update the value of our trainInfoArray to match the info in the database
-		if (snapshot.val()) {
-			trainInfoArray = [];
+		trainInfoArray = [];
+		if (snapshot.val()) {			
 			Object.keys(snapshot.val()).forEach(function(key){
 				// console.log(snapshot.val()[key].train);
 				var train = snapshot.val()[key].train;
@@ -216,13 +240,9 @@ function getTrainInfoFromDatabase() {
 			});
 		}
 
-		// console.log("trainInfoArray: " + trainInfoArray);
 		// Change the HTML using jQuery to reflect the updated train schedule table
 		displayTrainInfoTable();
 		console.log("trainInfoArray length: " + trainInfoArray.length);
-		trainInfoArray.forEach(function(train){
-			console.log(train);
-		});
 
 	// If any errors are experienced, log them to console.
 	}, function(errorObject) {

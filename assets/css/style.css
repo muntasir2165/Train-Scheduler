@@ -46,6 +46,11 @@ body {
     background: #000000;
 }
 
+.train-now {
+    color: #ff0000;
+    text-transform: uppercase;
+}
+
 .fa-trash {
      cursor: pointer;
 }
