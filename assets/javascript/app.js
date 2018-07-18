@@ -6,20 +6,21 @@ $(document).ready(function() {
 	// a variable to reference the database.
 	database = initializeFirebase();
 	getTrainInfoFromDatabase();
+	cancelTrainUpdateFormSubmissionEventListener();
 	addTrainFormSubmissionEventListener();
 	displayTrainInfoTable();
 	clearTrainForm();
+	updateTrainInfoPencilSquareIconClickListener();
 	deleteTrainInfoTrashIconClickListener();
 	updateTableInfoEveryMinute();
 	// seedData();
-	// database.ref().child("-LGTPQKcD-7zLyZadG7s").remove();
 });
 
 function updateTableInfoEveryMinute() {
 	setInterval(function () {
 		console.log("updating train into table at: " + moment().format("HH:mm:ss A"));
     	displayTrainInfoTable();
-	}, 60000);
+	}, 60 * 1000);
 }
 
 function initializeFirebase() {
@@ -42,6 +43,42 @@ function deleteTrainInfoTrashIconClickListener() {
 	});
 }
 
+function updateTrainInfoPencilSquareIconClickListener() {
+    $(document).on("click", "i.fa-pencil-square-o", function() {
+    	var databaseKey = $(this).attr("data-key");
+    	var trainToUpdate = getTrain(databaseKey);
+		modifyFormForUpdatetrainInfo(trainToUpdate);
+	});
+}
+
+function getTrain(databaseKey) {
+	for (var i=0; i<trainInfoArray.length; i++) {
+		var currentTrain = trainInfoArray[i];
+		if (currentTrain.databaseKey === databaseKey) {
+			return currentTrain;
+		}
+	}
+}
+
+function modifyFormForUpdatetrainInfo(trainToUpdate) {
+	$("#train-add-update").text("Update Train");
+
+	$("#train-name").val(trainToUpdate.trainName);
+	$("#destination").val(trainToUpdate.destination);
+	$("#first-train-time").val(trainToUpdate.firstTrainTime);
+	$("#frequency").val(trainToUpdate.frequency);
+	$("#databaseKey").val(trainToUpdate.databaseKey);
+
+	$("#cancel-train-info-update").show();
+}
+
+function cancelTrainUpdateFormSubmissionEventListener() {
+	$("#cancel-train-info-update").on("click", function(event) {
+		event.preventDefault();
+		clearTrainForm();
+	});
+}
+
 function addTrainFormSubmissionEventListener() {
 	$("#submit-train-info").on("click", function(event) {
 		event.preventDefault();
@@ -52,13 +89,15 @@ function addTrainFormSubmissionEventListener() {
 		train.firstTrainTime = $("#first-train-time").val().trim();
 		train.frequency = $("#frequency").val().trim();
 		
+		var databaseKey = $("#databaseKey").val().trim();
+
 		var isTrainNameNonEmptyAndUnique = true;
 		var isDestinationNonEmpty = true;
 		var isFirstTrainTimeValid = true;
 		var isFrequencyValid = true;
 
-		if (!uniqueNonEmptyTrainName(train.trainName) || !validNonEmptyDestination(train.destination) || !validFirstTrainTime(train.firstTrainTime) || !validFrequency(train.frequency)) {
-			if (!uniqueNonEmptyTrainName(train.trainName)) {
+		if (!uniqueNonEmptyTrainName(databaseKey, train.trainName) || !validNonEmptyDestination(train.destination) || !validFirstTrainTime(train.firstTrainTime) || !validFrequency(train.frequency)) {
+			if (!uniqueNonEmptyTrainName(databaseKey, train.trainName)) {
 				isTrainNameNonEmptyAndUnique = false;
 			}
 			if (!validNonEmptyDestination(train.destination)) {
@@ -73,17 +112,27 @@ function addTrainFormSubmissionEventListener() {
 			showFormInputFeedback(false, isTrainNameNonEmptyAndUnique, isDestinationNonEmpty, isFirstTrainTimeValid, isFrequencyValid);
 		} else {	
 			clearTrainForm();
-			addTrainInfoToDatabase(train);
+			if (databaseKey) {
+				// if databaseKey is NOT null then we are updating an existing train's info
+				updateTrainInfoToDatabase(databaseKey, train);
+			} else {
+				addTrainInfoToDatabase(train);
+			}
 		}
 	});
 }
 
-function uniqueNonEmptyTrainName(trainName) {
+function uniqueNonEmptyTrainName(databaseKey, trainName) {
 	if (!trainName) {
 		return false;
 	}
 	for (var i=0; i< trainInfoArray.length; i++) {
 		if (trainName === trainInfoArray[i].trainName) {
+			// if the train name exists and databaseKey is NOT null (i.e., we are updating an existing train's information)
+			// then return true to indicate that the train name is unique
+			if (databaseKey) {
+				return true;
+			}
 			return false;
 		}
 	}
@@ -143,11 +192,16 @@ function showFormInputFeedback(hideFormInputFeedback, isTrainNameNonEmptyAndUniq
 }
 
 function clearTrainForm() {
+	$("#train-add-update").text("Add Train");
+
 	$("#train-name").val("");
 	$("#destination").val("");
 	$("#first-train-time").val("");
 	$("#frequency").val("");
+	$("#databaseKey").val("");
 	showFormInputFeedback(true);
+
+	$("#cancel-train-info-update").hide();
 }
 
 function displayTrainInfoTable() {
@@ -162,15 +216,15 @@ function generateTrainHtml(train) {
 	var tableRow = $("<tr>");
 	
 	var trainNameTableCell = $("<td>");
-	trainNameTableCell.text(train.trainName)
+	trainNameTableCell.text(train.trainName);
 	tableRow.append(trainNameTableCell);
 	
 	var destinationTableCell = $("<td>");
-	destinationTableCell.text(train.destination)
+	destinationTableCell.text(train.destination);
 	tableRow.append(destinationTableCell);
 
 	var frequencyTableCell = $("<td>");
-	frequencyTableCell.text(train.frequency)
+	frequencyTableCell.text(train.frequency);
 	tableRow.append(frequencyTableCell);
 
 	var nextTrainMinutesAway = getNextTrainMinutesAway(train.firstTrainTime, train.frequency);
@@ -188,6 +242,10 @@ function generateTrainHtml(train) {
 		minutesAwayTableCell.text(nextTrainMinutesAway);
 	}
 	tableRow.append(minutesAwayTableCell);
+
+	var updateTrainInfoTableCell = $("<td>");
+	updateTrainInfoTableCell.html("<i data-key=\""+ train.databaseKey + "\" class=\"fa fa-pencil-square-o fa-2x\" aria-hidden=\"true\"></i>");
+	tableRow.append(updateTrainInfoTableCell);
 
 	var deleteTrainInfoTableCell = $("<td>");
 	deleteTrainInfoTableCell.html("<i data-key=\""+ train.databaseKey + "\" class=\"fa fa-trash fa-2x\" aria-hidden=\"true\"></i>");
@@ -212,6 +270,10 @@ function getNextTrainMinutesAway(firstTrainTime, frequency) {
 		nextTrainMinutesAway = Math.abs(nextTrainMinutesAway);
 	}
 	return nextTrainMinutesAway;
+}
+
+function updateTrainInfoToDatabase(databaseKey, train) {
+	database.ref().child(databaseKey + "/train").update(train);
 }
 
 function addTrainInfoToDatabase(train) {

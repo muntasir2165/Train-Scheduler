@@ -51,7 +51,7 @@ body {
     text-transform: uppercase;
 }
 
-.fa-trash {
+.fa-pencil-square-o, .fa-trash {
      cursor: pointer;
 }
 

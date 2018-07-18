@@ -63,6 +63,7 @@
 								        <th>Frequency (min)</th>
 								        <th>Next Arrival</th>
 								        <th>Minutes Away</th>
+								        <th>Update Train Info</th>
 								        <th>Delete Train Info</th>
 						      		</tr>
 						    	</thead>
@@ -73,7 +74,8 @@
 							        	<td>25</td>
 							        	<td>05:35 PM</td>
 							        	<td>10</td>
-							        	<td><i data-key="Trenton Express" class="fa fa-trash" aria-hidden="true"></i></td>
+							        	<td><i data-key="Trenton Express Key" class="fa fa-pencil-square-o" aria-hidden="true"></i></td>
+							        	<td><i data-key="Trenton Express Key" class="fa fa-trash" aria-hidden="true"></i></td>
 							      	</tr>
 							      	<tr>
 							        	<td>Oregon Trail</td>
@@ -81,7 +83,8 @@
 							        	<td>3600</td>
 							        	<td>01:39 PM</td>
 							        	<td>1154</td>
-							        	<td><i data-key="Trenton Express" class="fa fa-trash" aria-hidden="true"></i></td>
+							        	<td><i data-key="Oregon Trail Key" class="fa fa-pencil-square-o" aria-hidden="true"></i></td>
+							        	<td><i data-key="Oregon Trail Key" class="fa fa-trash" aria-hidden="true"></i></td>
 							      	</tr>
 							    </tbody>
 							</table>
@@ -92,7 +95,7 @@
 
 			<div class="row">
 				<div class="col-md-8 offset-md-2 offset-md-right-2 border rounded p-3">
-					<h2>Add Train</h2>
+					<h2 id="train-add-update">Add Train</h2>
 					  	<form>
 						    <div class="form-group">
 						      <label for="train-name">Train Name</label>
@@ -118,7 +121,11 @@
 						      <input type="text" class="form-control" id="frequency" placeholder="25" name="frequency">
 						      <div id="frequency-feedback" class="feedback"></div>
 						    </div>	
+						    <div class="form-group">
+						    	<input type="hidden" id="databaseKey" name="databaseKey" value="">
+						    </div>
 						    <button id="submit-train-info" type="submit" class="btn btn-primary">Submit</button>
+						    <button id="cancel-train-info-update" type="submit" class="btn btn-danger">Cancel</button>
 					  	</form>
 				</div>
 			</div>
